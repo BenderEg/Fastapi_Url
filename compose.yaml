@@ -1,0 +1,27 @@
+version: '1'
+services:
+    url_red:
+        container_name: url_red
+        image: redis:latest
+        ports:
+          - 6379:6379
+        env_file:
+            - .env
+        volumes:
+            - url_red:/data
+        networks:
+            - url_net
+        healthcheck:
+            test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+            interval: 1s
+            timeout: 3s
+            retries: 5
+
+volumes:
+    url_red:
+        name: url_red
+
+networks:
+    url_net:
+        name: url_net
+        external: true

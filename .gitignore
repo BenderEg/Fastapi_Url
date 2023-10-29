@@ -1,0 +1,5 @@
+.venv
+__pyc*
+.env
+poet*
+pypro*
