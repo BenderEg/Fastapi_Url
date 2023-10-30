@@ -60,13 +60,3 @@ input[type="submit"]:hover {
     white-space: pre;
     font-family: monospace;
 }
-
-#wrong_link h3 {
-    font-size: 20px;
-    color: #f70707;
-}
-
-#fail_redirect h3 {
-    font-size: 20px;
-    color: #f70707;
-}

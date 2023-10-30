@@ -58,53 +58,5 @@
         });
     </script>
 
-    <h1>Enter Short Link</h1>
-    <form id="linkForm2">
-        <label for="originalUrl">Enter URL to visit:</label>
-        <input type="text" id="shortUrl" name="shortUrl" required>
-        <input type="submit" value="Get initial Link">
-    </form>
-
-
-    <div id="fail_redirect" style="display: none;">
-        <h3>Error in redirection.</h3>
-    </div>
-
-    <script>
-        document.getElementById("linkForm2").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the form from submitting normally
-
-            const shortUrl = document.getElementById("shortUrl").value;
-
-            // Create a JSON object to send to the server
-            const requestData = {
-                link: shortUrl
-            };
-
-            // Send the JSON data to the server
-            fetch("forward", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    response.json().then(data => {
-                        // Display the JSON response on the same page
-                        document.getElementById("jsonResponse").textContent = JSON.stringify(data, null, 2);
-                        document.getElementById("response").style.display = "block";
-                    });
-                } else {
-                    console.error("Failed to send data.");
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("fail_redirect").style.display = "block";
-            });
-        });
-    </script>
 </body>
 </html>

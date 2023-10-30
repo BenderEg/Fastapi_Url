@@ -1,44 +1,48 @@
+from datetime import datetime
 from functools import lru_cache
-from random import choice, choices
-from string import ascii_letters, digits
+from random import choices
 
 from fastapi import Depends
 from redis.asyncio import Redis
 
 from db.redis import get_redis
-from models.url import UrlOut
 
 
 class UrlService():
 
     def __init__(self, storage: Redis):
         self.storage = storage
-        self.symbols = ascii_letters + digits
+        self.symbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        self.mod = len(self.symbols)
 
-    def create_short_url(self, link: UrlOut) -> str:
+    def create_short_url(self, stamp: datetime) -> str:
 
         added_part = ''
-        if link.path:
-            path = link.path.strip('/')
-            if path:
-                path = path.split('/')
-                added_part += ''.join([choice(ele) for ele in path])
-        if link.query:
-            query = [ele.split('=') for ele in link.query.split('&')]
-            query_dict = {ele[0]: ele[1] for ele in query}
-            added_part += ''.join([choice(ele) for ele in query_dict.values() if ele != ''])
+        data = (stamp.year, stamp.month, stamp.day, stamp.hour,
+                stamp.minute, stamp.second, stamp.microsecond)
+        for ele in data:
+            value = ele%self.mod
+            added_part += self.symbols[value]
         random_part = choices(self.symbols, k=5)
         added_part += ''.join(random_part)
-        return f'{link.host}/{added_part}'
+        return added_part
 
     async def add_url_to_storage(self, key: str, value: str) -> None:
 
         await self.storage.set(key, value)
 
-    async def get_url_from_storage(self, key: str) -> str:
+    async def add_original_url_to_storage(self, key: str, value: str,
+                                          expire: int) -> None:
+
+        await self.storage.set(key, value, expire)
+
+    async def get_from_storage(self, key: str) -> str:
 
         value = await self.storage.get(key)
         return value
+
+    async def hash_link(self, link: str) -> int:
+        return hash(link)
 
 
 @lru_cache()
