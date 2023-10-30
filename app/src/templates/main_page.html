@@ -91,7 +91,11 @@
             })
             .then(response => {
                 if (response.ok) {
-                    console.log("Data sent successfully.");
+                    response.json().then(data => {
+                        // Display the JSON response on the same page
+                        document.getElementById("jsonResponse").textContent = JSON.stringify(data, null, 2);
+                        document.getElementById("response").style.display = "block";
+                    });
                 } else {
                     console.error("Failed to send data.");
                 }

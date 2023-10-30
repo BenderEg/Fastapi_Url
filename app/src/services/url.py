@@ -20,8 +20,9 @@ class UrlService():
         added_part = ''
         if link.path:
             path = link.path.strip('/')
-            path = path.split('/')
-            added_part += ''.join([choice(ele) for ele in path])
+            if path:
+                path = path.split('/')
+                added_part += ''.join([choice(ele) for ele in path])
         if link.query:
             query = [ele.split('=') for ele in link.query.split('&')]
             query_dict = {ele[0]: ele[1] for ele in query}

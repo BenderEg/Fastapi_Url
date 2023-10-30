@@ -31,7 +31,7 @@ async def redirect_url(body: dict, url_service: url_service):
     if not link_out:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail="link doesn't exist in database.")
-    return RedirectResponse(url=link_out)
+    return link_out
 
 
 @router.get('/', status_code=HTTPStatus.OK, response_class=HTMLResponse)
