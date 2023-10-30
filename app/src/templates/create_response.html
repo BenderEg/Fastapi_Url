@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Response Page</title>
+</head>
+<body>
+    <h1>Response Page</h1>
+    <div id="response"></div>
+
+    <script>
+        // Extract data from the URL query parameters (assuming it's sent in the URL)
+        const urlParams = new URLSearchParams(window.location.search);
+        const responseData = urlParams.get("data");
+
+        // Display the response data on the page
+        if (responseData) {
+            document.getElementById("response").textContent = responseData;
+        } else {
+            document.getElementById("response").textContent = "No response data.";
+        }
+    </script>
+</body>
+</html>

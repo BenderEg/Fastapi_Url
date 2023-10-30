@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Short Link</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='/main_page.css') }}">
+</head>
+<body>
+    <h1>Create Short Link</h1>
+    <form id="linkForm">
+        <label for="originalUrl">Enter the original URL:</label>
+        <input type="text" id="originalUrl" name="originalUrl" required>
+        <input type="submit" value="Create Short Link">
+    </form>
+
+    <div id="response" style="display: none;">
+        <h2>Short link is:</h2>
+        <pre id="jsonResponse"></pre>
+    </div>
+
+    <div id="wrong_link" style="display: none;">
+        <h3>Link is not correct.</h3>
+    </div>
+
+    <script>
+        document.getElementById("linkForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const originalUrl = document.getElementById("originalUrl").value;
+
+            // Create a JSON object to send to the server
+            const requestData = {
+                incoming_link: originalUrl
+            };
+
+            // Send the JSON data to the server
+            fetch("create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        // Display the JSON response on the same page
+                        document.getElementById("jsonResponse").textContent = JSON.stringify(data, null, 2);
+                        document.getElementById("response").style.display = "block";
+                    });
+                } else {
+                    console.error("Failed to send data.");
+                    document.getElementById("wrong_link").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+
+    <h1>Enter Short Link</h1>
+    <form id="linkForm2">
+        <label for="originalUrl">Enter URL to visit:</label>
+        <input type="text" id="shortUrl" name="shortUrl" required>
+        <input type="submit" value="Get initial Link">
+    </form>
+
+
+    <div id="fail_redirect" style="display: none;">
+        <h3>Error in redirection.</h3>
+    </div>
+
+    <script>
+        document.getElementById("linkForm2").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const shortUrl = document.getElementById("shortUrl").value;
+
+            // Create a JSON object to send to the server
+            const requestData = {
+                link: shortUrl
+            };
+
+            // Send the JSON data to the server
+            fetch("forward", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Data sent successfully.");
+                } else {
+                    console.error("Failed to send data.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("fail_redirect").style.display = "block";
+            });
+        });
+    </script>
+</body>
+</html>

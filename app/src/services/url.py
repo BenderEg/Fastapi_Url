@@ -36,7 +36,8 @@ class UrlService():
 
     async def get_url_from_storage(self, key: str) -> str:
 
-        await self.storage.get(key)
+        value = await self.storage.get(key)
+        return value
 
 
 @lru_cache()

@@ -3,6 +3,8 @@ services:
     url_red:
         container_name: url_red
         image: redis:latest
+        ports:
+          - 6379:6379
         env_file:
             - .env
         volumes:
@@ -14,19 +16,6 @@ services:
             interval: 1s
             timeout: 3s
             retries: 5
-
-    url_fastapi:
-        container_name: url_fastapi
-        build:
-            context: ./app
-        ports:
-          - 80:80
-        env_file:
-            - .env
-        networks:
-            - url_net
-        depends_on:
-            - url_red
 
 volumes:
     url_red:
