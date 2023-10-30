@@ -3,3 +3,4 @@ __pyc*
 .env
 poet*
 pypro*
+compose-dev.yaml

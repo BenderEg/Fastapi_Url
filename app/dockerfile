@@ -5,5 +5,6 @@ WORKDIR /app
 COPY ./src .
 RUN useradd -d /app -r -U sam && chown sam:sam -R /app
 USER sam
-ENTRYPOINT ["gunicorn", "main:app", "--workers", "4", \
-    "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:80"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# ENTRYPOINT ["gunicorn", "main:app", "--workers", "4", \
+#    "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:80"]
