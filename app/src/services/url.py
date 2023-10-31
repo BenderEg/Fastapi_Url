@@ -7,12 +7,13 @@ from redis.asyncio import Redis
 
 from db.redis import get_redis
 
+symbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 class UrlService():
 
     def __init__(self, storage: Redis):
         self.storage = storage
-        self.symbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        self.symbols = symbols
         self.mod = len(self.symbols)
 
     def create_short_url(self, stamp: datetime) -> str:
