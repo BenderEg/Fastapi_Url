@@ -1,14 +1,18 @@
+from json import JSONDecodeError
 from typing import Optional
 
 import asyncio
 import pytest
 import pytest_asyncio
 
-from aiohttp import ClientSession, ContentTypeError
 from redis.asyncio import Redis
+from httpx import AsyncClient
 
 from core.config import settings
+from db import redis
+from main import app
 from services.url import get_url_service, UrlService
+from tests.utils.redis import get_redis_test
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -26,50 +30,47 @@ def class_service() -> UrlService:
 
 @pytest_asyncio.fixture(scope='module')
 async def redis_client() -> Redis:
-    db_num = settings.redis_db+1
-    red_client = Redis(host=settings.redis_host,
-                       port=settings.redis_port,
-                       db=db_num)
+    red_client: Redis = await get_redis_test()
     yield red_client
     await red_client.flushdb()
-    await red_client.close()
+    await red_client.aclose()
 
 
 @pytest_asyncio.fixture(scope='module')
-async def session() -> ClientSession:
-    session = ClientSession()
-    yield session
-    await session.close()
+async def client() -> AsyncClient:
+    app.dependency_overrides[redis.get_redis] = get_redis_test
+    client = AsyncClient(app=app, base_url=f'http://{settings.domain}')
+    yield client
+    app.dependency_overrides = {}
+
 
 @pytest_asyncio.fixture()
-def make_get_request(session: ClientSession) -> tuple:
+def make_get_request(client: AsyncClient) -> tuple:
     async def inner(url: str, path: Optional[str] = None):
-        url = f'http://{settings.domain}' + url
         if path:
             url += f'/{path}'
-        async with session.get(url) as response:
-            status = response.status
-            try:
-                body = await response.json()
-            except ContentTypeError:
-                return None, status
+        response = await client.get(url)
+        status = response.status_code
+        try:
+            body = response.json()
+        except JSONDecodeError:
+            return None, status
         return body, status
     return inner
 
+
 @pytest_asyncio.fixture()
-def make_post_request(session: ClientSession) -> tuple:
+def make_post_request(client: AsyncClient) -> tuple:
     async def inner(url: str, path: Optional[str] = None,
                     data: Optional[dict] = None,
                     headers: Optional[dict] = None):
-        url = f'http://{settings.domain}' + url
         if path:
             url += f'/{path}'
-        async with session.post(url, data=data, headers=headers) as response:
-            status = response.status
-            try:
-                body = await response.json()
-                print(body)
-            except ContentTypeError:
-                return None, status
+        response = await client.post(url, data=data, headers=headers)
+        status = response.status_code
+        try:
+            body = response.json()
+        except JSONDecodeError:
+            return None, status
         return body, status
     return inner

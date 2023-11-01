@@ -32,14 +32,13 @@ async def create_url(link: UrlIn, url_service: url_service):
     await url_service.add_original_url_to_storage(hashed_link,
                                                   uploaded_link,
                                                   settings.cache)
-    return f'{settings.domain}/{uploaded_link}'
+    return f'{settings.domain}/{uploaded_link}/'
 
 
-@router.get('/{link}/', status_code=HTTPStatus.MOVED_PERMANENTLY,
-             response_class=RedirectResponse)
+@router.get('/{link}/')
 async def redirect_url(link: str, url_service: url_service):
     link_out = await url_service.get_from_storage(link)
     if not link_out:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail="link doesn't exist in database.")
-    return link_out
+    return RedirectResponse(url=link_out, status_code=HTTPStatus.MOVED_PERMANENTLY)

@@ -10,5 +10,6 @@ class Settings(BaseSettings):
     redis_db: int
     domain: str
     cache: int = 3600
+    local: bool = True
 
 settings = Settings()
