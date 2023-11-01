@@ -12,7 +12,8 @@ Technology stack:
 1. Fastapi;
 2. Redis;
 3. Pydantic;
-4. ChatGPT.
+4. ChatGPT;
+5. Pytest.
 
 The main part of service was created based on Fastapi+Pydantic pair.
 To store links I use Redis database.
