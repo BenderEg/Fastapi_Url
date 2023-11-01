@@ -7,6 +7,8 @@ For instance:
 2. Get back a short link: {host_domain_name}/shortstring;
 3. If user send http request using short link, he will be redirected to original link.
 
+If user add '+' at the end of a link, user get statistics of the link's usages.
+
 Technology stack:
 
 1. Fastapi;
