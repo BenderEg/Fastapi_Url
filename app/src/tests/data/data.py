@@ -4,9 +4,6 @@ from http import HTTPStatus
 
 from core.config import settings
 
-global_link = ''
-symbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 data = [(datetime(year=88, month=12, day=31, hour=14, minute=54, second=1,
                  microsecond=87, tzinfo=UTC),
         'amFo2bZ'),
