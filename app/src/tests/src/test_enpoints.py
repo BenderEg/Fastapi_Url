@@ -42,13 +42,10 @@ async def test_create_endpoint(make_post_request, redis_client,
 @pytest.mark.asyncio
 async def test_get_link_in_db_endpoint(make_get_request, redis_client,
                                  inpt, expected_answer):
-
-    if settings.local:
-        link = f'http://{inpt["to_cache"]}'
     await redis_client.hset(name=inpt["to_cache"],
                             mapping={'value': inpt['value'],
                                      'counter': 0})
-    _, status = await make_get_request(link)
+    _, status = await make_get_request(inpt["to_cache"])
     assert status == expected_answer
 
 
@@ -56,9 +53,7 @@ async def test_get_link_in_db_endpoint(make_get_request, redis_client,
 @pytest.mark.asyncio
 async def test_get_link_not_in_db_endpoint(make_get_request,
                                  inpt, expected_answer):
-    if settings.local:
-        link = f'http://{inpt}'
-    _, status = await make_get_request(link)
+    _, status = await make_get_request(inpt)
     assert status == expected_answer
 
 
@@ -66,9 +61,7 @@ async def test_get_link_not_in_db_endpoint(make_get_request,
 @pytest.mark.asyncio
 async def test_count(make_get_request,
                      inpt, expected_answer):
-    if settings.local:
-        link = f'http://{inpt}'
-    _, _ = await make_get_request(link)
-    link += '+'
-    body, status = await make_get_request(link)
+    _, _ = await make_get_request(inpt)
+    inpt += '+'
+    body, status = await make_get_request(inpt)
     assert status == expected_answer

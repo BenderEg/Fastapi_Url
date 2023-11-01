@@ -17,8 +17,8 @@ parameters_create = [({"incoming_link": "https://google.com/"},
         ]
 
 parameters_get = [({'to_cache': 'wefwe31r32f',
-                    'value': 'https://google.com/'}, 200)]
+                    'value': 'https://google.com/'}, 307)]
 
-parameters_get_not = [(f'{settings.domain}/wefwe31dwqdr32f', 307)]
+parameters_get_not = [(f'wefwe31dwqdr32f', 307)]
 
-parameters_count = [(f'{settings.domain}/wefwe31r32f', 307)]
+parameters_count = [(f'wefwe31r32f', 307)]

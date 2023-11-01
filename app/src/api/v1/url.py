@@ -42,11 +42,11 @@ async def redirect_url(request: Request, link: str, url_service: url_service):
     link_in = link[:-1] if link[-1] == '+' else link
     link_out = await url_service.get_url_from_storage(name=link_in,
                                                       key='value')
-    counts = int(await url_service.get_url_from_storage(name=link_in,
-                                                    key='counter'))
     if not link_out:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail="link doesn't exist in database.")
+    counts = int(await url_service.get_url_from_storage(name=link_in,
+                                                    key='counter'))
     if link[-1] == '+':
         return templates.TemplateResponse("counts.html",
                                           {"counts": counts,

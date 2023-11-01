@@ -14,6 +14,7 @@ services:
             interval: 1s
             timeout: 3s
             retries: 5
+        restart: always
 
     url_fastapi:
         container_name: url_fastapi
@@ -27,6 +28,7 @@ services:
             - url_net
         depends_on:
             - url_red
+        restart: always
 
 volumes:
     url_red:
