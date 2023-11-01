@@ -23,22 +23,38 @@ async def create_url(link: UrlIn, url_service: url_service):
 
     link = str(link.incoming_link)
     hashed_link = await url_service.hash_link(link)
-    check_storage = await url_service.get_from_storage(hashed_link)
+    check_storage = await url_service.get_from_storage(key=hashed_link)
     if check_storage:
         return f'{settings.domain}/{check_storage}'
     current_time = datetime.now(tz=UTC)
     uploaded_link = url_service.create_short_url(current_time)
-    await url_service.add_url_to_storage(key=uploaded_link, value=link)
+    await url_service.add_url_to_storage(name=uploaded_link,
+                                         values={'value': link,
+                                                'counter': 0})
     await url_service.add_original_url_to_storage(hashed_link,
                                                   uploaded_link,
                                                   settings.cache)
-    return f'{settings.domain}/{uploaded_link}/'
+    return f'{settings.domain}/{uploaded_link}'
 
 
-@router.get('/{link}/')
-async def redirect_url(link: str, url_service: url_service):
-    link_out = await url_service.get_from_storage(link)
+@router.get('/{link}/', status_code=HTTPStatus.OK)
+async def redirect_url(request: Request, link: str, url_service: url_service):
+    link_in = link[:-1] if link[-1] == '+' else link
+    link_out = await url_service.get_url_from_storage(name=link_in,
+                                                      key='value')
+    counts = int(await url_service.get_url_from_storage(name=link_in,
+                                                    key='counter'))
     if not link_out:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail="link doesn't exist in database.")
-    return RedirectResponse(url=link_out, status_code=HTTPStatus.MOVED_PERMANENTLY)
+    if link[-1] == '+':
+        return templates.TemplateResponse("counts.html",
+                                          {"counts": counts,
+                                           "link": link_out,
+                                           "request": request})
+    counts += 1
+    await url_service.add_url_to_storage(name=link_in,
+                                         values={'value': link_out,
+                                                'counter': counts})
+    return RedirectResponse(url=link_out,
+                            status_code=HTTPStatus.MOVED_PERMANENTLY)

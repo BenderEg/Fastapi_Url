@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 from functools import lru_cache
 from random import choices
@@ -28,9 +30,15 @@ class UrlService():
         added_part += ''.join(random_part)
         return added_part
 
-    async def add_url_to_storage(self, key: str, value: str) -> None:
+    async def add_url_to_storage(self, name: str, values: list) -> None:
 
-        await self.storage.set(key, value)
+        # it = json.dumps(items)
+        await self.storage.hset(name, mapping=values)
+
+    async def get_url_from_storage(self, name: str, key: str) -> str:
+
+        value = await self.storage.hget(name, key)
+        return value
 
     async def add_original_url_to_storage(self, key: str, value: str,
                                           expire: int) -> None:

@@ -5,7 +5,7 @@ from core.config import settings
 from tests.conftest import redis_client, make_get_request, \
     event_loop, make_post_request, client
 from tests.data.data import parameters_create, parameters_get, \
-    parameters_get_not
+    parameters_get_not, parameters_count
 
 
 @pytest.mark.asyncio
@@ -27,10 +27,11 @@ async def test_create_endpoint(make_post_request, redis_client,
         data=json.dumps(inpt),
         headers={"Content-Type": "application/json"})
     link = body.split('/')[1]
-    link_from_db = await redis_client.get(link)
+    link_from_db = await redis_client.hget(name=link,
+                                           key='value')
     link_repeat = body_repeat.split('/')[1]
-    link_from_db_repeat = await redis_client.get(link_repeat)
-
+    link_from_db_repeat = await redis_client.hget(name=link_repeat,
+                                           key='value')
     assert status == 201
     assert link_from_db == expected_answer
     assert status_repeat == 201
@@ -43,8 +44,10 @@ async def test_get_link_in_db_endpoint(make_get_request, redis_client,
                                  inpt, expected_answer):
 
     if settings.local:
-        link = f'http://{inpt["to_cache"]}/'
-    await redis_client.set(inpt["to_cache"], inpt['value'])
+        link = f'http://{inpt["to_cache"]}'
+    await redis_client.hset(name=inpt["to_cache"],
+                            mapping={'value': inpt['value'],
+                                     'counter': 0})
     _, status = await make_get_request(link)
     assert status == expected_answer
 
@@ -54,6 +57,18 @@ async def test_get_link_in_db_endpoint(make_get_request, redis_client,
 async def test_get_link_not_in_db_endpoint(make_get_request,
                                  inpt, expected_answer):
     if settings.local:
-        link = f'http://{inpt}/'
+        link = f'http://{inpt}'
     _, status = await make_get_request(link)
+    assert status == expected_answer
+
+
+@pytest.mark.parametrize('inpt, expected_answer', parameters_count)
+@pytest.mark.asyncio
+async def test_count(make_get_request,
+                     inpt, expected_answer):
+    if settings.local:
+        link = f'http://{inpt}'
+    _, _ = await make_get_request(link)
+    link += '+'
+    body, status = await make_get_request(link)
     assert status == expected_answer
